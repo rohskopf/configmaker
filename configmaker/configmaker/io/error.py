@@ -1,2 +1,0 @@
-class ExitFunc(Exception):
-    pass
