@@ -142,7 +142,8 @@ class Generator:
         write("POSCAR", configs.atoms_list, "vasp", parallel=False, append=False)
     
         # ASE exyz
-        """
-        print(configs.atoms_list)
+        # print(configs.atoms_list)
         write("output.exyz", configs.atoms_list, "extxyz", parallel=False, append=False)
-        """
+        
+        # LAMMPS data file
+        write("DATA", configs.atoms_list, "lammps-data", parallel=False, append=False)
