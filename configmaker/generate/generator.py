@@ -96,7 +96,8 @@ class Generator:
         self._lmp.command(f"create_box 1 box") # change 1 to number of atom types.
         ### Create atom type 1 in the box
         #self._lmp.command(f"create_atoms 1 random 17 1919191 NULL") # Positions don't matter... just declare the memory
-        self._lmp.command(f"create_atoms 1 region box basis 1 1 basis 2 1") # See create_atoms command to see how we will change the atom types.
+        #self._lmp.command(f"create_atoms 1 region box basis 1 1 basis 2 1") # See create_atoms command to see how we will change the atom types.
+        self._lmp.command(f"create_atoms 1 region box basis 1 1")
         
         natoms = self._lmp.get_natoms()
         print(f"{natoms} atoms.")
