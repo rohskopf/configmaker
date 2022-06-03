@@ -6,15 +6,7 @@
 #
 # <!-----------------END-HEADER------------------------------------->
 
-#from ..io.input import config
-#from os import path, listdir, stat
 import numpy as np
-#from random import shuffle
-#from ..parallel_tools import pt
-#from ..io.output import output
-#from ..units.units import convert
-#from copy import copy
-# from natsort import natsorted
 
 # ASE import
 from ase.visualize import view
@@ -25,18 +17,18 @@ class Configurations:
 
     def __init__(self):
         print("__init__ Configurations")
-        
+
         # Parse configuration types which define how the configs relate to the given config.
         self.parse_configtypes()
         self.nconfigs = len(self.configtypes)
         print(f"{self.nconfigs} configs.")
         # Parse the given config.
         self.parse_config()
-        
+
         # Initialize list of Atoms object
         self.atoms_list = []
-        
-        
+
+
     def parse_configtypes(self):
         f = open("CONFIGTYPES", 'r')
         self.configtypes=[]
@@ -47,9 +39,9 @@ class Configurations:
             m=self.configtypes.append(listli)
         print(self.configtypes)
         f.close()
-        
+
     def parse_config(self):
-    
+
         # Lattice vector
         f = open("LATVEC", 'r')
         test = np.empty((self.nconfigs,3,3))
@@ -68,7 +60,7 @@ class Configurations:
         self.latvec = np.array(latvec_list[1:])
         print(self.latvec)
         f.close()
-        
+
         # Basis
         f = open("BASIS", 'r')
         self.basis = []
@@ -82,7 +74,7 @@ class Configurations:
         self.basistypes = self.basis[:,0]
         self.basis = self.basis[:,1:]
         f.close()
-        
+
         # Box
         f = open("BOX", 'r')
         box_list = []
@@ -99,7 +91,7 @@ class Configurations:
         self.box = self.boxscale*self.box
         print(self.box)
         f.close()
-        
+
         # Type map
         f = open("TYPEMAP", 'r')
         self.map_list = []
@@ -111,11 +103,11 @@ class Configurations:
             m=self.map_list.append(strip_lines)
         print(self.map_list)
         f.close()
-        
+
     # Allocate arrays like positions, types, boxes, etc.
     def allocate(self):
         pass
-        
+
     # Add a config (ASE Atoms object) to the list of configs)
     def add(self,symbols,x,box):
         atoms = Atoms(#numbers=types,
@@ -126,6 +118,3 @@ class Configurations:
         print("numbers:-------")
         print(atoms.numbers)
         self.atoms_list.append(atoms)
-        
-        
-        

@@ -7,10 +7,8 @@
 # <!-----------------END-HEADER------------------------------------->
 
 from .configmaker import ConfigMaker
-from .parallel_tools import pt
-from .io.output import output
 
-@pt.single_timeit
+#@pt.single_timeit
 def main():
     try:
         print("__main.py__ function")
@@ -23,7 +21,6 @@ def main():
         #snap.write_output()
     except Exception as e:
         print("__main.py__ exception")
-        output.exception(e)
 
 
 if __name__ == "__main__":
