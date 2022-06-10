@@ -58,15 +58,15 @@ class Generator:
         #configurations.basis = 0
         #self.lmp.one("units metal")
         self._initialize_lammps(configurations)
-        
+
         self.generate(configurations)
-        
+
         # Close lammps
         self._lmp = pt.close_lammps()
-        
+
         # Write configs
         self.write(configurations)
-        
+
     def _initialize_lammps(self,configurations):
         print("Initializing LAMMPS")
         self._lmp = pt.initialize_lammps(0,0)
@@ -74,35 +74,37 @@ class Generator:
         self._lmp.command(f"units metal")
         self._lmp.command(f"atom_style atomic")
         self._lmp.command(f"atom_modify map array")
-        
+
         #self._lmp.command(f"lattice diamond 5.46")
-                                                                     
+
         lattice_custom_str = f"lattice custom {configurations.latscale} a1 {configurations.latvec[0][0]} {configurations.latvec[0][1]} {configurations.latvec[0][2]} \
                                                                         a2 {configurations.latvec[1][0]} {configurations.latvec[1][1]} {configurations.latvec[1][2]} \
                                                                         a3 {configurations.latvec[2][0]} {configurations.latvec[2][1]} {configurations.latvec[2][2]} "
-                                                                        
+
         nbasis = np.shape(configurations.basis)[0]
         for b in range(0,nbasis):
             lattice_custom_str = lattice_custom_str + f"basis {configurations.basis[b][0]} {configurations.basis[b][1]} {configurations.basis[b][2]} "
-            
+
         #print(lattice_custom_str)
         self._lmp.command(lattice_custom_str)
         #self._lmp.command(f"region box prism 0 1 0 1 0 1 0 0 0 units lattice")
         region_str = f"region box prism 0 {configurations.box[0][0]} 0 {configurations.box[1][1]} 0 {configurations.box[2][2]} {configurations.box[0][1]} {configurations.box[0][2]} {configurations.box[1][2]} units box"
         self._lmp.command(region_str)
         #self._lmp.command(f"region box prism 0 5.46 0 5.46 0 5.46 0 0 0 units box")
-        
-        
-        self._lmp.command(f"create_box 1 box") # change 1 to number of atom types.
+
+        self._lmp.command(f"create_box 2 box") # change 1 to number of atom types.
         ### Create atom type 1 in the box
         #self._lmp.command(f"create_atoms 1 random 17 1919191 NULL") # Positions don't matter... just declare the memory
         #self._lmp.command(f"create_atoms 1 region box basis 1 1 basis 2 1") # See create_atoms command to see how we will change the atom types.
-        self._lmp.command(f"create_atoms 1 region box basis 1 1")
-        
+        #self._lmp.command(f"create_atoms 1 region box basis 1 1")
+        #self._lmp.command(f"create_atoms 1 region box basis 1 2 basis 2 2 basis 3 1 basis 4 1 basis 5 1 basis 6 1 basis 7 1 basis 8 2 basis 9 1 basis 10 1 basis 11 1 basis 12 2 basis 13 2 basis 14 2 basis 15 1 basis 16 1 basis 17 1 basis 18 1")
+        #self._lmp.command(f"create_atoms 1 region box basis 1 1 2 1") # 3 1 4 2 5 2 6 2 7 2 8 2 9 2")
+        self._lmp.command(f"create_atoms 1 region box basis 1 1 basis 2 1 basis 3 1 basis 4 2 basis 5 2 basis 6 2 basis 7 2 basis 8 2 basis 9 2")
+
         natoms = self._lmp.get_natoms()
         print(f"{natoms} atoms.")
         #x = self._lmp.numpy.gather_atoms("x",1,3)
-        
+
         # Get positions, types, and box.
         self.x = self._lmp.numpy.extract_atom_darray(name="x", nelem=natoms, dim=3)
         print("Given positions:")
@@ -116,16 +118,16 @@ class Generator:
         for i in range(0,natoms):
             self.symbols.append(configurations.map_list[self.type[i]-1])
         print(self.symbols)
-        
+
         boxlo,boxhi,xy,yz,xz,periodicity,box_change = self._lmp.extract_box()
         self.box = np.array([[boxhi[0], xy, xz],
                              [xy, boxhi[1], yz],
                              [xz, yz, boxhi[2]]])
         print("Given box:")
         print(self.box)
-        
+
     def generate(self,configs):
-    
+
         for m in range(0,configs.nconfigs):
             print(f"Making config {m}.")
             configtype = configs.configtypes[m][0][0]
@@ -136,15 +138,15 @@ class Generator:
                 print("One!")
             else:
                 print("Unrecognized config type.")
-                
+
     def write(self, configs):
-    
+
         # VASP
         write("POSCAR", configs.atoms_list, "vasp", parallel=False, append=False)
-    
+
         # ASE exyz
         # print(configs.atoms_list)
         write("output.exyz", configs.atoms_list, "extxyz", parallel=False, append=False)
-        
+
         # LAMMPS data file
         write("DATA", configs.atoms_list, "lammps-data", parallel=False, append=False)
